@@ -1,0 +1,6 @@
+{
+  "name": "Smoke & Fire Detection Vision App",
+  "description": "An application that uses Gemini API to detect smoke and fire in uploaded images and highlights them.",
+  "requestFramePermissions": [],
+  "prompt": ""
+}
