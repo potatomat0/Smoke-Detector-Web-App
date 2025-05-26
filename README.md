@@ -47,7 +47,6 @@ The application operates entirely on the client-side (in the user's browser).
 5.  **Language Switching:**
     *   Users can toggle between English and Vietnamese.
     *   This changes all UI text and also modifies the prompt sent to the Gemini API to request descriptions in the chosen language.
-
 ```mermaid
 sequenceDiagram
     participant User
@@ -57,33 +56,43 @@ sequenceDiagram
 
     User->>Browser: Opens application
     Browser->>LocalStorage: Check for API Key
-    alt API Key not found or Stored Key Invalid
-        LocalStorage-->>Browser: No/Invalid Key
-        Browser-->>User: Show API Key Input Modal
-        User->>Browser: Enters API Key
-        Browser->>GeminiAPI: Initialize Client with New Key
-        alt Initialization Fails
-             GeminiAPI-->>Browser: Init Error
-             Browser-->>User: Display API Key Error in Modal
-        else Initialization Succeeds
-             GeminiAPI-->>Browser: Init Success
-             Browser->>LocalStorage: Store API Key
-             Browser-->>User: Close Modal, Enable App
-        end
-    else API Key found and Client Initializes Successfully
-        LocalStorage-->>Browser: API Key
+    alt API Key Found in LocalStorage
+        LocalStorage-->>Browser: Returns Stored API Key
         Browser->>GeminiAPI: Initialize Client with Stored Key
-        GeminiAPI-->>Browser: Init Success
-        Browser-->>User: Enable App
+        alt Initialization Successful
+            GeminiAPI-->>Browser: Init Success
+            Browser-->>User: App features enabled
+        else Initialization Fails (e.g. key revoked)
+            GeminiAPI-->>Browser: Init Error
+            Browser->>LocalStorage: Clear Invalid API Key
+            Browser-->>User: Display API Key Error in Form, App features disabled
+        end
+    else API Key Not Found in LocalStorage
+        LocalStorage-->>Browser: No Key
+        Browser-->>User: App features disabled, API key input form available
     end
 
-    User->>Browser: Selects an image
-    User->>Browser: Clicks "Detect Smoke & Fire"
-    Browser->>Browser: Convert image to Base64
-    Note over Browser,GeminiAPI: Request includes Image Data, Prompt (with language), and API Key for auth
-    Browser->>GeminiAPI: POST /models/gemini-2.5-flash-preview-04-17:generateContent
-    GeminiAPI-->>Browser: Detection results (JSON)
-    Browser->>User: Display Image with Detections & Descriptions
+    User->>Browser: Enters API Key in Form
+    User->>Browser: Clicks "Save & Validate Key"
+    Browser->>GeminiAPI: Initialize Client with New Key
+    alt Initialization Successful
+        GeminiAPI-->>Browser: Init Success
+        Browser->>LocalStorage: Store API Key
+        Browser-->>User: API Key Validated, App features enabled
+    else Initialization Fails
+        GeminiAPI-->>Browser: Init Error
+        Browser-->>User: Display API Key Error in Form, App features remain disabled
+    end
+
+    alt App features enabled
+        User->>Browser: Selects an image
+        User->>Browser: Clicks "Detect Smoke & Fire"
+        Browser->>Browser: Convert image to Base64
+        Note over Browser,GeminiAPI: Request includes Image Data, Prompt (with language), and API Key for auth
+        Browser->>GeminiAPI: POST /models/gemini-2.5-flash-preview-04-17:generateContent
+        GeminiAPI-->>Browser: Detection results (JSON)
+        Browser->>User: Display Image with Detections & Descriptions
+    end
 ```
 
 ## Setup and Deployment
