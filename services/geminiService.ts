@@ -1,15 +1,36 @@
 
 import { GoogleGenAI, GenerateContentResponse } from "@google/genai";
 import type { Detection, GeminiDetectionResponse } from '../types';
-import type { LanguageCode } from "../localization/translations";
+import type { LanguageCode, TranslationSet } from "../localization/translations";
+import { translations } from "../localization/translations";
 
-const API_KEY = process.env.API_KEY;
 
-if (!API_KEY) {
-  console.error("API_KEY is not set in environment variables.");
-}
+let ai: GoogleGenAI | null = null;
 
-const ai = new GoogleGenAI({ apiKey: API_KEY! });
+export const initializeGeminiClient = (apiKey: string, currentLanguage: LanguageCode): { success: boolean; error?: string } => {
+  const currentTranslations = translations[currentLanguage];
+  if (!apiKey || apiKey.trim() === "") {
+    const message = currentTranslations.apiKeyCannotBeEmpty;
+    console.error(message);
+    return { success: false, error: message };
+  }
+  try {
+    ai = new GoogleGenAI({ apiKey });
+    // It's hard to synchronously validate the key without making a call.
+    // The SDK constructor might throw for fundamentally malformed structures, but not for invalid credentials.
+    // For now, we assume construction success means it's structurally okay.
+    // Actual validation happens on the first API call.
+    return { success: true };
+  } catch (error) {
+    console.error("Failed to initialize GoogleGenAI client:", error);
+    const message = error instanceof Error ? error.message : currentTranslations.apiKeyInvalidError;
+    return { success: false, error: message };
+  }
+};
+
+export const isGeminiClientInitialized = (): boolean => {
+  return ai !== null;
+};
 
 const getPromptText = (language: LanguageCode): string => {
   const langInstruction = language === 'vi' 
@@ -43,11 +64,9 @@ Example for a single detection:
 };
 
 export const detectSmokeAndFire = async (base64ImageData: string, mimeType: string, language: LanguageCode): Promise<Detection[]> => {
-  if (!API_KEY) {
-    const errorMessage = language === 'vi' 
-        ? "API_KEY cho Gemini chưa được định cấu hình. Không thể thực hiện cuộc gọi API."
-        : "API_KEY for Gemini is not configured. Cannot make API calls.";
-    return Promise.reject(new Error(errorMessage));
+  const currentTranslations = translations[language];
+  if (!ai) {
+    return Promise.reject(new Error(currentTranslations.geminiClientNotInitialized));
   }
   try {
     const imagePart = {
@@ -106,6 +125,13 @@ export const detectSmokeAndFire = async (base64ImageData: string, mimeType: stri
 
   } catch (error) {
     console.error('Error calling Gemini API:', error);
+    // Check if the error is related to API key specifically (e.g., 400/401/403 status from API)
+    // This is a generic catch, so specific API key errors might be wrapped.
+    // For now, we'll re-throw a generic message, but ideally, detect specific auth errors.
+    if (error instanceof Error && (error.message.includes('API key not valid') || error.message.includes('PERMISSION_DENIED'))) {
+         throw new Error(currentTranslations.apiKeyInvalidError);
+    }
+    
     if (error instanceof Error) {
         const errorMessage = language === 'vi'
             ? `Yêu cầu API Gemini không thành công: ${error.message}`

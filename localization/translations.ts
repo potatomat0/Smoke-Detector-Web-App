@@ -1,4 +1,3 @@
-
 export type LanguageCode = 'en' | 'vi';
 
 export interface TranslationSet {
@@ -28,6 +27,20 @@ export interface TranslationSet {
   fire: string;
   errorLoadingImage: string;
   imageDisplayArea: string;
+
+  // API Key Form Translations
+  apiKeyLabel: string;
+  apiKeySetupInstruction: string; // New for inline setup
+  apiKeyInstructions: string; // Re-purposed for brief inline explanation
+  apiKeyInputPlaceholder: string;
+  apiKeySaveButton: string;
+  apiKeyMissingError: string; // Can still be relevant if input is empty on submit
+  apiKeyInvalidError: string;
+  apiKeyCannotBeEmpty: string; // Can still be relevant if input is empty on submit
+  apiKeySuccess: string; // Potentially for a success message after saving
+  apiKeyHowToLinkText: string;
+  apiKeyStorageNotice: string; // Re-purposed for brief inline notice
+  geminiClientNotInitialized: string;
 }
 
 export const translations: Record<LanguageCode, TranslationSet> = {
@@ -51,18 +64,32 @@ export const translations: Record<LanguageCode, TranslationSet> = {
     preparingImage: "Preparing image...",
     analyzingOverlay: "Analyzing...",
     errorHeading: "Error:",
-    footerText: "AI Vision App. Powered by Gemini.",
+    footerText: "",
     languageEnglish: "English",
     languageVietnamese: "Tiếng Việt",
     smoke: "Smoke",
     fire: "Fire",
     errorLoadingImage: "Error loading image",
     imageDisplayArea: "Image display area with detections",
+
+    // API Key Form Translations
+    apiKeyLabel: "Gemini API Key",
+    apiKeySetupInstruction: "Set up your Gemini API Key to enable analysis:",
+    apiKeyInstructions: "Enter your Google Gemini API Key. Obtain one from Google AI Studio.",
+    apiKeyInputPlaceholder: "Enter your Gemini API Key here",
+    apiKeySaveButton: "Save & Validate Key",
+    apiKeyMissingError: "API Key is required to proceed.",
+    apiKeyInvalidError: "Invalid API Key or failed to initialize. Please check your key and try again.",
+    apiKeyCannotBeEmpty: "API Key cannot be empty.",
+    apiKeySuccess: "API Key saved and validated successfully!",
+    apiKeyHowToLinkText: "Get a Gemini API Key",
+    apiKeyStorageNotice: "Your API key is stored locally in your browser.",
+    geminiClientNotInitialized: "Gemini client not initialized. Please set your API Key.",
   },
   vi: {
     pageTitle: "AI Phát Hiện Khói & Lửa",
     appTitle: "AI Phát Hiện Khói & Lửa",
-    appSubtitle: "Tải ảnh lên để phát hiện khói và lửa bằng Gemini.",
+    appSubtitle: "Tải ảnh lên để phát hiện khói và lửa bằng Gemini Flash.",
     selectImageFirst: "Vui lòng chọn một hình ảnh trước.",
     unsupportedImageType: "Loại hình ảnh không được hỗ trợ. Vui lòng sử dụng JPEG, PNG hoặc WebP.",
     errorDuringDetection: "Đã xảy ra lỗi không xác định trong quá trình phát hiện.",
@@ -79,12 +106,28 @@ export const translations: Record<LanguageCode, TranslationSet> = {
     preparingImage: "Đang chuẩn bị hình ảnh...",
     analyzingOverlay: "Đang phân tích...",
     errorHeading: "Lỗi:",
-    footerText: "Ứng dụng Thị giác AI. Cung cấp bởi Gemini.",
+    footerText: "",
     languageEnglish: "English",
     languageVietnamese: "Tiếng Việt",
     smoke: "Khói",
     fire: "Lửa",
     errorLoadingImage: "Lỗi tải hình ảnh",
     imageDisplayArea: "Khu vực hiển thị hình ảnh với các phát hiện",
+
+    // API Key Form Translations
+    apiKeyLabel: "Gemini API Key",
+    apiKeySetupInstruction: "Cài đặt API Key Gemini của bạn để bật tính năng phân tích:",
+    apiKeyInstructions: "Nhập API Key Google Gemini của bạn. Bạn có thể lấy key từ Google AI Studio.",
+    apiKeyInputPlaceholder: "Nhập API Key Gemini của bạn tại đây",
+    apiKeySaveButton: "Lưu & Xác thực Key",
+    apiKeyMissingError: "Cần có API Key để tiếp tục.",
+    apiKeyInvalidError: "API Key không hợp lệ hoặc không thể khởi tạo. Vui lòng kiểm tra key của bạn và thử lại.",
+    apiKeyCannotBeEmpty: "API Key không được để trống.",
+    apiKeySuccess: "API Key đã được lưu và xác thực thành công!",
+    apiKeyHowToLinkText: "Lấy API Key Gemini",
+    apiKeyStorageNotice: "API key của bạn được lưu trữ cục bộ trong trình duyệt.",
+    geminiClientNotInitialized: "Ứng dụng Gemini chưa được khởi tạo. Vui lòng cài đặt API Key.",
   }
 };
+
+export const GEMINI_API_KEY_LOCAL_STORAGE = 'GEMINI_USER_API_KEY';
